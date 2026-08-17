@@ -1,0 +1,79 @@
+{% if live and live.active and live.frame_stats %}
+<div class="live-stats-inner">
+
+  <div class="stats-grid">
+    <div class="stat-box">
+      <span class="stat-label">Live Vehicle Count</span>
+      <span class="stat-value">{{ live.frame_stats.vehicle_count }}</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Overall Traffic Density</span>
+      <span class="stat-value density-{{ live.frame_stats.overall_density|lower }}">{{ live.frame_stats.overall_density }}</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Resolution</span>
+      <span class="stat-value small">{{ live.resolution }}</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-label">Frames Analyzed</span>
+      <span class="stat-value">{{ live.frame_index }}</span>
+    </div>
+  </div>
+
+  <div class="signal-grid live-signal-grid">
+    {% for lane, sig in live.frame_stats.lane_signals.items() %}
+    {% set score = live.frame_stats.lane_scores[lane] %}
+    <div class="signal-unit">
+      <div class="signal-unit-header">
+        <h3>{{ lane.replace('_', ' ') }}</h3>
+      </div>
+
+      <div class="traffic-light">
+        <div class="light red {{ 'active' if sig.signal == 'RED' else '' }}"></div>
+        <div class="light green {{ 'active' if sig.signal == 'GREEN' else '' }}"></div>
+      </div>
+
+      <div class="signal-details">
+        <div class="signal-detail-row">
+          <span>Signal</span>
+          <strong class="signal-text-{{ sig.signal|lower }}">{{ sig.signal }}</strong>
+        </div>
+        <div class="signal-detail-row">
+          <span>Live Count</span>
+          <strong>{{ live.frame_stats.lane_counts[lane] }}</strong>
+        </div>
+        <div class="signal-detail-row">
+          <span>Running Avg</span>
+          <strong>{{ sig.avg_vehicles }}</strong>
+        </div>
+        <div class="signal-detail-row">
+          <span>Density</span>
+          <strong class="density-{{ sig.density|lower }}">{{ sig.density }}</strong>
+        </div>
+        {% if sig.signal == 'GREEN' %}
+        <div class="signal-detail-row">
+          <span>Suggested Green Time</span>
+          <strong>{{ sig.suggested_green_seconds }}s</strong>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="score-block">
+        <div class="signal-detail-row">
+          <span>Traffic Score</span>
+          <strong class="score-text-{{ score.score_label|lower }}">{{ score.score_pct }}% &middot; {{ score.score_label }}</strong>
+        </div>
+        <div class="score-bar-track">
+          <div class="score-bar-fill score-fill-{{ score.score_label|lower }}" style="width: {{ score.score_pct }}%;"></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% elif live and live.active %}
+<p class="muted live-stats-waiting">Connecting to camera and running first detections…</p>
+{% else %}
+<p class="muted live-stats-waiting">Live stats will appear here once the camera starts.</p>
+{% endif %}

@@ -1,0 +1,1336 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap');
+
+
+/* =========================================================
+   ROOT
+   ========================================================= */
+
+:root {
+  --cream: #F4F1EA;
+  --ink: #14151A;
+  --ink-soft: #45473F;
+
+  --hairline: rgba(20, 21, 26, 0.14);
+  --hairline-strong: rgba(20, 21, 26, 0.28);
+
+  --signal-green: #2E8B57;
+  --signal-amber: #C68A1E;
+  --signal-orange: #C25B21;
+  --signal-red: #B33A2E;
+
+  --lane-dash:
+    repeating-linear-gradient(
+      90deg,
+      var(--ink) 0 14px,
+      transparent 14px 26px
+    );
+}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100vh;
+
+  background: var(--cream);
+  color: var(--ink);
+
+  font-family: 'DM Sans', sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+
+  overflow-x: hidden;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
+}
+
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+
+h1,
+h2,
+h3 {
+  font-family: 'DM Serif Display', serif;
+  font-weight: 400;
+  margin: 0;
+}
+
+.muted {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.app-header {
+  width: 100%;
+
+  background: var(--ink);
+  color: var(--cream);
+
+  padding: 28px 0;
+
+  position: relative;
+}
+
+.app-header::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 4px;
+
+  background-image: var(--lane-dash);
+
+  opacity: 0.9;
+}
+
+.header-inner {
+  width: min(1080px, calc(100% - 48px));
+
+  margin: 0 auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  flex-wrap: wrap;
+}
+
+.header-title {
+  min-width: 0;
+}
+
+.header-title h1 {
+  font-size: 2.1rem;
+  letter-spacing: 0.2px;
+}
+
+.header-title p {
+  margin: 6px 0 0;
+
+  font-family: 'DM Mono', monospace;
+
+  font-size: 0.8rem;
+  letter-spacing: 1.5px;
+
+  text-transform: uppercase;
+
+  color: rgba(244, 241, 234, 0.65);
+}
+
+.header-badge {
+  flex-shrink: 0;
+
+  font-family: 'DM Mono', monospace;
+
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+
+  padding: 6px 14px;
+
+  border-radius: 100px;
+
+  border: 1px solid rgba(244, 241, 234, 0.35);
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+.header-badge.ok {
+  color: var(--cream);
+
+  border-color: rgba(46, 139, 87, 0.6);
+
+  background: rgba(46, 139, 87, 0.18);
+}
+
+.header-badge.error {
+  color: var(--cream);
+
+  border-color: rgba(179, 58, 46, 0.6);
+
+  background: rgba(179, 58, 46, 0.18);
+}
+
+
+/* =========================================================
+   MAIN LAYOUT
+   ========================================================= */
+
+.container {
+  width: min(1080px, calc(100% - 48px));
+
+  margin: 0 auto;
+
+  padding: 36px 0 60px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 28px;
+
+  min-width: 0;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.card {
+  width: 100%;
+  min-width: 0;
+
+  background: #fff;
+
+  border: 1px solid var(--hairline);
+
+  padding: 28px;
+
+  overflow: hidden;
+}
+
+.card h2 {
+  font-size: 1.35rem;
+
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+
+  border-bottom: 1px solid var(--hairline);
+}
+
+
+/* =========================================================
+   ALERTS
+   ========================================================= */
+
+.alert {
+  width: 100%;
+
+  padding: 16px 20px;
+
+  border: 1px solid var(--hairline-strong);
+
+  font-size: 0.92rem;
+}
+
+.alert-error {
+  border-left: 4px solid var(--signal-red);
+
+  background: rgba(179, 58, 46, 0.06);
+}
+
+
+/* =========================================================
+   UPLOAD
+   ========================================================= */
+
+.drop-zone {
+  width: 100%;
+
+  border: 1px dashed var(--hairline-strong);
+
+  padding: 48px 24px;
+
+  text-align: center;
+
+  margin: 18px 0;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.drop-zone.dragover {
+  border-color: var(--ink);
+
+  background: rgba(20, 21, 26, 0.03);
+}
+
+.drop-zone-main {
+  font-family: 'DM Serif Display', serif;
+
+  font-size: 1.2rem;
+
+  margin: 0 0 6px;
+}
+
+.file-name {
+  font-family: 'DM Mono', monospace;
+
+  font-size: 0.82rem;
+
+  margin-top: 14px;
+
+  color: var(--ink-soft);
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.browse-btn,
+.primary-btn,
+.secondary-btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 44px;
+
+  font-family: 'DM Sans', sans-serif;
+
+  font-weight: 500;
+
+  font-size: 0.9rem;
+
+  letter-spacing: 0.3px;
+
+  padding: 10px 22px;
+
+  cursor: pointer;
+
+  border: 1px solid var(--ink);
+
+  text-decoration: none;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    opacity 0.15s ease;
+
+  white-space: nowrap;
+}
+
+.browse-btn {
+  background: transparent;
+
+  color: var(--ink);
+
+  margin-top: 6px;
+}
+
+.browse-btn:hover {
+  background: var(--ink);
+
+  color: var(--cream);
+}
+
+.primary-btn {
+  background: var(--ink);
+
+  color: var(--cream);
+
+  margin-top: 20px;
+}
+
+.primary-btn:hover {
+  background: #2a2c33;
+}
+
+.primary-btn:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+.secondary-btn {
+  background: transparent;
+
+  color: var(--ink);
+
+  margin-top: 20px;
+}
+
+.secondary-btn:hover {
+  background: rgba(20, 21, 26, 0.06);
+}
+
+.actions-row {
+  display: flex;
+
+  gap: 14px;
+
+  flex-wrap: wrap;
+
+  margin-top: 20px;
+}
+
+
+/* =========================================================
+   LIVE PHONE CAMERA
+   ========================================================= */
+
+.live-card {
+  width: 100%;
+  min-width: 0;
+}
+
+.section-header {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding-bottom: 14px;
+
+  border-bottom: 1px solid var(--hairline);
+}
+
+.section-header > div:first-child {
+  min-width: 0;
+}
+
+.section-header h2 {
+  margin-bottom: 8px;
+}
+
+.live-status {
+  flex-shrink: 0;
+
+  font-family: 'DM Mono', monospace;
+
+  font-size: 0.72rem;
+
+  letter-spacing: 0.5px;
+
+  padding: 6px 12px;
+
+  border-radius: 100px;
+
+  border: 1px solid var(--hairline-strong);
+
+  white-space: nowrap;
+}
+
+.live-status.offline {
+  color: var(--ink-soft);
+
+  background: rgba(20, 21, 26, 0.04);
+}
+
+.live-status.online {
+  color: var(--signal-green);
+
+  border-color: rgba(46, 139, 87, 0.35);
+
+  background: rgba(46, 139, 87, 0.08);
+}
+
+
+/* =========================================================
+   LIVE CONTROLS
+   ========================================================= */
+
+.live-controls {
+  width: 100%;
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin: 0 0 20px;
+}
+
+.live-controls .primary-btn,
+.live-controls .secondary-btn {
+  margin-top: 0;
+}
+
+
+/* =========================================================
+   LIVE VIDEO
+   ========================================================= */
+
+.live-container {
+  width: 100%;
+  max-width: 100%;
+
+  min-width: 0;
+
+  border: 1px solid var(--hairline-strong);
+
+  background: #000;
+
+  overflow: hidden;
+}
+
+
+/* Header above live stream */
+
+.live-video-header {
+  width: 100%;
+
+  min-height: 48px;
+
+  padding: 12px 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+
+  background: var(--ink);
+
+  color: var(--cream);
+
+  font-family: 'DM Mono', monospace;
+
+  font-size: 0.72rem;
+
+  letter-spacing: 0.5px;
+
+  text-transform: uppercase;
+}
+
+.live-video-header span {
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+}
+
+.live-video-header span:last-child {
+  color: rgba(244, 241, 234, 0.6);
+
+  text-align: right;
+}
+
+
+/* IMPORTANT:
+   This prevents the phone camera stream
+   from overflowing outside the card.
+*/
+
+.live-video-wrapper {
+  width: 100%;
+  max-width: 100%;
+
+  min-width: 0;
+
+  background: #000;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+#liveStream {
+  display: block;
+
+  width: 100%;
+  max-width: 100%;
+
+  height: auto;
+
+  object-fit: contain;
+
+  margin: 0;
+}
+
+
+/* =========================================================
+   LIVE INFORMATION
+   ========================================================= */
+
+.live-info {
+  width: 100%;
+
+  margin-top: 18px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 1px;
+
+  background: var(--hairline);
+
+  border: 1px solid var(--hairline);
+}
+
+.live-info-box {
+  min-width: 0;
+
+  background: #fff;
+
+  padding: 16px;
+}
+
+.live-info-box span {
+  display: block;
+
+  margin-bottom: 7px;
+
+  font-family: 'DM Mono', monospace;
+
+  font-size: 0.68rem;
+
+  letter-spacing: 0.5px;
+
+  text-transform: uppercase;
+
+  color: var(--ink-soft);
+}
+
+.live-info-box strong {
+  display: block;
+
+  font-size: 0.92rem;
+
+  font-weight: 500;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* =========================================================
+   PROCESSED VIDEO
+   ========================================================= */
+
+.video-grid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 24px;
+
+  min-width: 0;
+}
+
+.video-col {
+  min-width: 0;
+}
+
+.video-col h3 {
+  font-size: 1rem;
+
+  font-family: 'DM Sans', sans-serif;
+
+  font-weight: 700;
+
+  margin-bottom: 10px;
+}
+
+.video-col video,
+video {
+  display: block;
+
+  width: 100%;
+  max-width: 100%;
+
+  height: auto;
+
+  border: 1px solid var(--hairline-strong);
+
+  background: #000;
+}
+
+
+/* =========================================================
+   STATISTICS
+   ========================================================= */
+
+.stats-grid,
+.lane-grid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fill, minmax(190px, 1fr));
+
+  gap: 1px;
+
+  background: var(--hairline);
+
+  border: 1px solid var(--hairline);
+
+  min-width: 0;
+}
+
+.stat-box {
+  min-width: 0;
+
+  background: #fff;
+
+  padding: 18px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.stat-label {
+  font-family: 'DM Mono', monospace;
+
+  font-size: 0.72rem;
+
+  letter-spacing: 0.6px;
+
+  text-transform: uppercase;
+
+  color: var(--ink-soft);
+
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+}
+
+.stat-value {
+  font-family: 'DM Mono', monospace;
+
+  font-size: 1.7rem;
+
+  font-weight: 500;
+
+  overflow-wrap: anywhere;
+}
+
+.stat-value.small {
+  font-size: 1.05rem;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   TRAFFIC DENSITY
+   ========================================================= */
+
+.density-low {
+  color: var(--signal-green);
+}
+
+.density-moderate {
+  color: var(--signal-amber);
+}
+
+.density-high {
+  color: var(--signal-orange);
+}
+
+.density-severe {
+  color: var(--signal-red);
+}
+
+
+/* =========================================================
+   LIVE STATS (polled fragment)
+   ========================================================= */
+
+.live-stats-container {
+  width: 100%;
+
+  margin-top: 18px;
+}
+
+.live-stats-inner {
+  width: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 24px;
+}
+
+.live-stats-waiting {
+  padding: 16px 0 0;
+}
+
+
+/* =========================================================
+   TRAFFIC SIGNAL CONTROL
+   ========================================================= */
+
+.signal-grid {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 24px;
+
+  min-width: 0;
+}
+
+.signal-unit {
+  min-width: 0;
+
+  border: 1px solid var(--hairline);
+
+  padding: 20px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 16px;
+
+  text-align: center;
+}
+
+.signal-unit-header {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+}
+
+.signal-unit-header h3 {
+  font-size: 1.05rem;
+
+  font-family: 'DM Sans', sans-serif;
+
+  font-weight: 700;
+}
+
+.priority-badge {
+  font-family: 'DM Mono', monospace;
+
+  font-size: 0.65rem;
+
+  letter-spacing: 0.6px;
+
+  padding: 4px 10px;
+
+  border-radius: 100px;
+
+  color: var(--cream);
+
+  background: var(--ink);
+
+  white-space: nowrap;
+}
+
+/* The signal housing itself - a dark vertical box holding 2 lights */
+
+.traffic-light {
+  width: 64px;
+
+  padding: 12px 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 12px;
+
+  background: var(--ink);
+
+  border-radius: 8px;
+}
+
+.light {
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+
+  background: rgba(244, 241, 234, 0.12);
+
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.light.red.active {
+  background: var(--signal-red);
+
+  box-shadow: 0 0 16px 2px rgba(179, 58, 46, 0.7);
+}
+
+.light.green.active {
+  background: var(--signal-green);
+
+  box-shadow: 0 0 16px 2px rgba(46, 139, 87, 0.7);
+}
+
+.signal-details {
+  width: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.signal-detail-row {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  font-size: 0.85rem;
+}
+
+.signal-detail-row span {
+  font-family: 'DM Mono', monospace;
+
+  font-size: 0.68rem;
+
+  letter-spacing: 0.5px;
+
+  text-transform: uppercase;
+
+  color: var(--ink-soft);
+}
+
+.signal-detail-row strong {
+  font-family: 'DM Mono', monospace;
+
+  font-weight: 500;
+}
+
+.signal-text-red {
+  color: var(--signal-red);
+}
+
+.signal-text-green {
+  color: var(--signal-green);
+}
+
+/* =========================================================
+   TRAFFIC SCORE (composite score bar within each signal unit)
+   ========================================================= */
+
+.score-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--hairline-strong);
+}
+
+.score-bar-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 100px;
+  background: rgba(20, 21, 26, 0.08);
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  transition: width 0.3s ease;
+}
+
+.score-fill-low { background: var(--signal-green); }
+.score-fill-moderate { background: var(--signal-amber); }
+.score-fill-high { background: var(--signal-orange); }
+.score-fill-severe { background: var(--signal-red); }
+
+.score-text-low { color: var(--signal-green); }
+.score-text-moderate { color: var(--signal-amber); }
+.score-text-high { color: var(--signal-orange); }
+.score-text-severe { color: var(--signal-red); }
+
+.score-breakdown {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.3px;
+}
+
+
+/* =========================================================
+   CHART
+   ========================================================= */
+
+#densityChart {
+  display: block;
+
+  width: 100% !important;
+
+  max-width: 100%;
+
+  height: auto !important;
+
+  border: 1px solid var(--hairline);
+
+  background: #fff;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.empty-state {
+  text-align: center;
+
+  color: var(--ink-soft);
+
+  padding: 48px 24px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.app-footer {
+  width: 100%;
+
+  text-align: center;
+
+  padding: 24px;
+
+  font-family: 'DM Mono', monospace;
+
+  font-size: 0.75rem;
+
+  color: var(--ink-soft);
+
+  border-top: 1px solid var(--hairline);
+}
+
+
+/* =========================================================
+   LOADING OVERLAY
+   ========================================================= */
+
+.loading-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(20, 21, 26, 0.55);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  color: var(--cream);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  z-index: 9999;
+}
+
+.loading-overlay.hidden {
+  display: none;
+}
+
+.loading-box {
+  width: min(420px, calc(100% - 40px));
+
+  text-align: center;
+
+  padding: 32px 28px;
+
+  background: rgba(20, 21, 26, 0.85);
+
+  border: 1px solid rgba(244, 241, 234, 0.15);
+
+  border-radius: 8px;
+}
+
+.loading-sub {
+  font-size: 0.82rem;
+
+  color: rgba(244, 241, 234, 0.6);
+
+  margin-top: 6px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+
+  border: 3px solid rgba(244, 241, 234, 0.25);
+
+  border-top-color: var(--signal-amber);
+
+  border-radius: 50%;
+
+  margin: 0 auto 18px;
+
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+/* =========================================================
+   HIDDEN
+   ========================================================= */
+
+.hidden {
+  display: none !important;
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .container,
+  .header-inner {
+    width: calc(100% - 32px);
+  }
+
+  .live-info {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .stats-grid,
+  .lane-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .video-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 720px) {
+
+  .app-header {
+    padding: 22px 0;
+  }
+
+  .container {
+    width: calc(100% - 20px);
+
+    padding: 20px 0 40px;
+
+    gap: 18px;
+  }
+
+  .header-inner {
+    width: calc(100% - 20px);
+
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .header-title h1 {
+    font-size: 1.75rem;
+  }
+
+  .header-title p {
+    font-size: 0.68rem;
+
+    letter-spacing: 1px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .section-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 12px;
+  }
+
+  .live-controls {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .live-controls .primary-btn,
+  .live-controls .secondary-btn {
+    width: 100%;
+  }
+
+  .live-video-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 5px;
+  }
+
+  .live-video-header span:last-child {
+    text-align: left;
+  }
+
+  .live-info {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid,
+  .lane-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .signal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-row {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .actions-row a {
+    width: 100%;
+  }
+
+  .drop-zone {
+    padding: 36px 16px;
+  }
+
+  .browse-btn {
+    width: 100%;
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    white-space: normal;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+
+  .card {
+    padding: 16px;
+  }
+
+  .card h2 {
+    font-size: 1.2rem;
+  }
+
+  .header-title h1 {
+    font-size: 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 1.45rem;
+  }
+
+  .stat-value.small {
+    font-size: 0.95rem;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .spinner {
+    animation: none;
+  }
+
+  .browse-btn,
+  .primary-btn,
+  .secondary-btn,
+  .drop-zone {
+    transition: none;
+  }
+}
+
+#vehicleCountChart {
+  display: block;
+  width: 100% !important;
+  max-width: 100%;
+  height: 320px !important;
+  border: 1px solid var(--hairline);
+  background: #fff;
+}

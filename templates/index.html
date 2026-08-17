@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Traffic Management System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+  <!-- =========================================================
+       LOADING OVERLAY
+       ========================================================= -->
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <p>Processing video with AI detection…</p>
+      <p class="loading-sub">
+        This may take a while for longer videos. Please don't close this tab.
+      </p>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       HEADER
+       ========================================================= -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="header-title">
+        <h1>AI Traffic Management System</h1>
+        <p>Real-Time Traffic Video Intelligence</p>
+      </div>
+      <div class="header-badge {{ 'ok' if model_ready else 'error' }}">
+        {{ 'Model Ready' if model_ready else 'Model Unavailable' }}
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       MAIN CONTENT
+       ========================================================= -->
+  <main class="container">
+
+    <!-- =========================
+         MODEL ERROR
+         ========================= -->
+    {% if not model_ready %}
+    <div class="alert alert-error">
+      <strong>Model could not be loaded.</strong>
+      {{ model_error }}
+    </div>
+    {% endif %}
+
+    <!-- =========================
+         GENERAL ERROR
+         ========================= -->
+    {% if error %}
+    <div class="alert alert-error">
+      <strong>Something went wrong:</strong>
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- =========================
+         UPLOAD VIDEO
+         ========================= -->
+    <section class="card upload-card">
+      <h2>Upload Traffic Video</h2>
+      <p class="muted">Supported formats: MP4, AVI, MOV, MKV</p>
+      <form id="uploadForm" action="{{ url_for('process') }}" method="post" enctype="multipart/form-data">
+        <div id="dropZone" class="drop-zone">
+          <p class="drop-zone-main">Drag &amp; drop your video here</p>
+          <p class="muted">or</p>
+          <label for="videoInput" class="browse-btn">Browse Video</label>
+          <input
+            type="file"
+            id="videoInput"
+            name="video"
+            accept=".mp4,.avi,.mov,.mkv"
+            hidden
+            required
+          />
+          <p id="fileNameLabel" class="file-name"></p>
+        </div>
+        <button type="submit" class="primary-btn" id="submitBtn" {{ 'disabled' if not model_ready else '' }}>Upload &amp; Analyze</button>
+      </form>
+    </section>
+
+    <!-- =========================
+         LIVE PHONE CAMERA
+         ========================= -->
+    <section class="card live-card">
+      <div class="section-header">
+        <div>
+          <h2>📱 Live Phone Camera</h2>
+          <p class="muted">Use your phone camera as a live traffic camera.</p>
+        </div>
+        <div id="liveStatus" class="live-status offline">● OFFLINE</div>
+      </div>
+
+      <!-- Live controls -->
+      <div class="live-controls">
+        <button type="button" id="startLiveBtn" class="primary-btn" onclick="startLiveCamera()" {{ 'disabled' if not model_ready else '' }}>▶ Start Live Detection</button>
+        <button type="button" id="stopLiveBtn" class="secondary-btn" onclick="stopLiveCamera()" disabled>■ Stop Camera</button>
+      </div>
+
+      <!-- Live video -->
+      <div id="liveContainer" class="live-container hidden">
+        <div class="live-video-header">
+          <span>🔴 LIVE AI TRAFFIC DETECTION</span>
+          <span id="liveResolution">Phone Camera</span>
+        </div>
+        <div class="live-video-wrapper">
+          <img id="liveStream" src="" alt="Live traffic detection stream" />
+        </div>
+      </div>
+
+      <!-- Live information -->
+      <div id="liveInfo" class="live-info hidden">
+        <div class="live-info-box">
+          <span>Input</span>
+          <strong>Phone Camera</strong>
+        </div>
+        <div class="live-info-box">
+          <span>AI Model</span>
+          <strong>ONNX</strong>
+        </div>
+        <div class="live-info-box">
+          <span>Detection</span>
+          <strong>Real-Time</strong>
+        </div>
+        <div class="live-info-box">
+          <span>Traffic Analysis</span>
+          <strong>Enabled</strong>
+        </div>
+      </div>
+
+      <!-- Live traffic signal + stats (polled from the server every second) -->
+      <div id="liveStatsContainer" class="live-stats-container hidden"></div>
+    </section>
+
+    <!-- =========================
+         PROCESSED VIDEO RESULT
+         ========================= -->
+    {% if results %}
+    <section class="card video-card">
+      <h2>Video Preview</h2>
+      <div class="video-grid">
+        <!-- Original Video -->
+        <div class="video-col">
+          <h3>Original Video</h3>
+          <video controls preload="metadata" playsinline width="100%">
+            <source src="{{ original_video_url }}" />
+            Your browser does not support HTML5 video.
+          </video>
+        </div>
+        <!-- Processed Video -->
+        <div class="video-col">
+          <h3>Processed Video (AI Detections)</h3>
+          <video controls preload="metadata" playsinline width="100%">
+            <source src="{{ processed_video_url }}" type="video/mp4" />
+            Your browser does not support HTML5 video.
+          </video>
+        </div>
+      </div>
+      <!-- Actions -->
+      <div class="actions-row">
+        <a class="primary-btn" href="{{ url_for('download', filename=processed_filename) }}">Download Processed Video</a>
+        <a class="secondary-btn" href="{{ url_for('index') }}">New Analysis</a>
+      </div>
+    </section>
+
+    <!-- =========================
+         TRAFFIC SIGNAL CONTROL
+         ========================= -->
+    <section class="card">
+      <h2>Traffic Signal Recommendation</h2>
+      <p class="muted">
+        Based on the average traffic density across all {{ results.total_frames }} processed frames per lane.
+      </p>
+     <div class="signal-grid">
+        {% for lane in results.lane_names %}
+        {% set sig = results.final_signals[lane] %}
+        {% set score = results.lane_scores[lane] %}
+        <div class="signal-unit">
+          <div class="signal-unit-header">
+            <h3>{{ lane.replace('_', ' ') }}</h3>
+          </div>
+
+          <div class="traffic-light">
+            <div class="light red {{ 'active' if sig.signal == 'RED' else '' }}"></div>
+            <div class="light green {{ 'active' if sig.signal == 'GREEN' else '' }}"></div>
+          </div>
+
+          <div class="signal-details">
+            <div class="signal-detail-row">
+              <span>Signal</span>
+              <strong class="signal-text-{{ sig.signal|lower }}">{{ sig.signal }}</strong>
+            </div>
+            <div class="signal-detail-row">
+              <span>Avg Vehicles / Frame</span>
+              <strong>{{ sig.avg_vehicles }}</strong>
+            </div>
+            <div class="signal-detail-row">
+              <span>Density</span>
+              <strong class="density-{{ sig.density|lower }}">{{ sig.density }}</strong>
+            </div>
+            {% if sig.signal == 'GREEN' %}
+            <div class="signal-detail-row">
+              <span>Suggested Green Time</span>
+              <strong>{{ sig.suggested_green_seconds }}s</strong>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="score-block">
+            <div class="signal-detail-row">
+              <span>Traffic Score</span>
+              <strong class="score-text-{{ score.score_label|lower }}">{{ score.score_pct }}% &middot; {{ score.score_label }}</strong>
+            </div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill score-fill-{{ score.score_label|lower }}" style="width: {{ score.score_pct }}%;"></div>
+            </div>
+            <div class="score-breakdown muted">
+              Max {{ (score.max_ratio * 100)|round|int }}% &middot; Avg {{ (score.avg_ratio * 100)|round|int }}% &middot; Util {{ (score.utilization * 100)|round|int }}% &middot; Density {{ (score.density_score * 100)|round|int }}%
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- =========================
+         TRAFFIC STATISTICS
+         ========================= -->
+    <section class="card">
+      <h2>Traffic Statistics</h2>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-label">Total Vehicle Detections</span>
+          <span class="stat-value">{{ results.total_vehicle_detections }}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Peak Vehicles / Frame</span>
+          <span class="stat-value">{{ results.max_vehicles_in_frame }}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Avg Vehicles / Frame</span>
+          <span class="stat-value">{{ results.average_vehicles_per_frame }}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Overall Traffic Density</span>
+          <span class="stat-value density-{{ results.overall_density|lower }}">{{ results.overall_density }}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Estimated Road Utilization</span>
+          <span class="stat-value">{{ results.road_utilization_pct }}%</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Frames Processed</span>
+          <span class="stat-value">{{ results.total_frames }}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Video FPS / Resolution</span>
+          <span class="stat-value small">{{ results.fps }} fps · {{ results.resolution }}</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Processing Time</span>
+          <span class="stat-value small">{{ results.processing_seconds }}s</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================
+         LANE BASED TRAFFIC
+         ========================= -->
+    <section class="card">
+      <h2>Lane-Based Traffic</h2>
+      <div class="lane-grid">
+        {% for lane in results.lane_names %}
+        <div class="stat-box">
+          <span class="stat-label">{{ lane.replace('_', ' ') }} — Total Vehicles</span>
+          <span class="stat-value">{{ results.lane_totals[lane] }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- =========================
+         VEHICLE TYPES
+         ========================= -->
+    <section class="card">
+      <h2>Vehicle Types Detected</h2>
+      <div class="stats-grid">
+        {% for cls_name, count in results.class_totals.items() %}
+        <div class="stat-box">
+          <span class="stat-label">{{ cls_name }}</span>
+          <span class="stat-value">{{ count }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- =========================
+         VEHICLE COUNT OVER TIME CHART
+         ========================= -->
+    <section class="card">
+      <h2>Vehicle Count Over Time</h2>
+      <p class="muted">
+        Number of detected vehicles across the processed video frames.
+      </p>
+      <canvas id="vehicleCountChart"></canvas>
+    </section>
+    {% else %}
+    <!-- =========================
+         EMPTY STATE
+         ========================= -->
+    <section class="card empty-state">
+      <p>Upload a traffic video above to run AI-powered vehicle detection, lane analysis, and congestion classification.</p>
+      <p class="muted">Or use your phone camera above for real-time detection.</p>
+    </section>
+    {% endif %}
+  </main>
+
+  <!-- =========================================================
+       FOOTER
+       ========================================================= -->
+  <footer class="app-footer">
+    <p>Intelligent Traffic Management System &middot; ONNX Runtime + OpenCV + Flask</p>
+  </footer>
+
+  <!-- =========================================================
+       Jinja Data Script
+       ========================================================= -->
+  <script>
+    {% if results %}
+    const frameTrend = {{ results.frame_trend | tojson }};
+    {% else %}
+    const frameTrend = [];
+    {% endif %}
+  </script>
+
+  <!-- =========================================================
+       MAIN APP JAVASCRIPT (upload drag/drop, loading overlay, chart)
+       ========================================================= -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+  <!-- =========================================================
+       LIVE CAMERA JAVASCRIPT
+       ========================================================= -->
+  <script>
+    let liveStatsInterval = null;
+
+    function startLiveCamera() {
+      const stream = document.getElementById("liveStream");
+      const container = document.getElementById("liveContainer");
+      const info = document.getElementById("liveInfo");
+      const statsContainer = document.getElementById("liveStatsContainer");
+      const startButton = document.getElementById("startLiveBtn");
+      const stopButton = document.getElementById("stopLiveBtn");
+      const status = document.getElementById("liveStatus");
+
+      // Start Flask MJPEG stream
+      stream.src = "{{ url_for('live') }}" + "?t=" + Date.now();
+
+      // Show UI
+      container.classList.remove("hidden");
+      info.classList.remove("hidden");
+      statsContainer.classList.remove("hidden");
+
+      // Buttons
+      startButton.disabled = true;
+      stopButton.disabled = false;
+
+      // Status
+      status.textContent = "● LIVE";
+      status.classList.remove("offline");
+      status.classList.add("online");
+
+      // Start polling live traffic-signal + stats (plain HTML, no JSON)
+      fetchLiveStats();
+      if (liveStatsInterval) clearInterval(liveStatsInterval);
+      liveStatsInterval = setInterval(fetchLiveStats, 1000);
+    }
+
+    function stopLiveCamera() {
+      const stream = document.getElementById("liveStream");
+      const container = document.getElementById("liveContainer");
+      const info = document.getElementById("liveInfo");
+      const statsContainer = document.getElementById("liveStatsContainer");
+      const startButton = document.getElementById("startLiveBtn");
+      const stopButton = document.getElementById("stopLiveBtn");
+      const status = document.getElementById("liveStatus");
+
+      // Stop stream
+      stream.src = "";
+
+      // Hide video
+      container.classList.add("hidden");
+      info.classList.add("hidden");
+      statsContainer.classList.add("hidden");
+      statsContainer.innerHTML = "";
+
+      // Buttons
+      startButton.disabled = false;
+      stopButton.disabled = true;
+
+      // Status
+      status.textContent = "● OFFLINE";
+      status.classList.remove("online");
+      status.classList.add("offline");
+
+      // Stop polling
+      if (liveStatsInterval) {
+        clearInterval(liveStatsInterval);
+        liveStatsInterval = null;
+      }
+    }
+
+    function fetchLiveStats() {
+      fetch("{{ url_for('live_stats') }}")
+        .then(function (response) { return response.text(); })
+        .then(function (html) {
+          document.getElementById("liveStatsContainer").innerHTML = html;
+        })
+        .catch(function () { /* stream may be starting up - ignore transient errors */ });
+    }
+  </script>
+</body>
+</html>
